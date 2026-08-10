@@ -60,7 +60,7 @@ jobs:
         env:
           DISPLAY: ":99"
         run: |
-          npx playwright test src/tests/application/ --headed
+          npx playwright test src/tests/scorecard/ --headed
 
       - name: Stop screen recording
         if: always()
