@@ -8,8 +8,8 @@ class ScorecardMarketingPage {
 
   async goto() {
     await this.page.goto(TD.urls.scorecardMarketing, { waitUntil: 'networkidle', timeout: 60000 });
-    // Wait for page to be fully loaded by checking for a key element
-    await this.page.waitForSelector('body', { state: 'visible', timeout: 30000 }).catch(() => {});
+    // Wait for page to be fully loaded by checking for actual marketing page content
+    await this.page.waitForSelector('[data-testid="scorecard-tile"], [data-testid="scorecard-plus-tile"], h1:has-text("Score the Right Membership for You"), h2:has-text("Score the Right Membership for You")', { state: 'visible', timeout: 30000 });
   }
 
   async setViewportSize(width, height) {
