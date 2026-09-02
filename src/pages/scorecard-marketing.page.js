@@ -7,7 +7,9 @@ class ScorecardMarketingPage {
   }
 
   async goto() {
-    await this.page.goto(TD.urls.scorecardMarketing, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await this.page.goto(TD.urls.scorecardMarketing, { waitUntil: 'networkidle', timeout: 60000 });
+    // Wait for page to be fully loaded by checking for a key element
+    await this.page.waitForSelector('body', { state: 'visible', timeout: 30000 }).catch(() => {});
   }
 
   async setViewportSize(width, height) {

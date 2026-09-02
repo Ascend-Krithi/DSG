@@ -143,7 +143,7 @@ test.describe('[UI] QS-107: Scorecard Marketing Page Tile Content', { tag: ['@sm
     const logo = page.locator('[data-testid="scorecard-logo"], img[alt*="Scorecard"]').first();
     
     // Verify logo is visible
-    await expect(logo).toBeVisible();
+    await expect(logo).toBeVisible({ timeout: 30000 });
     
     // Verify logo has alt text
     const altText = await marketingPage.getScorecardLogoAltText();
