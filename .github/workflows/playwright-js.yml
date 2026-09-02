@@ -1,24 +1,21 @@
+ 
 on:
   push:
     branches: [ "main", "feature/**", "feature-*" ]
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Ensure package.json exists & Install Dependencies
         run: |
           if [ ! -f package.json ]; then
@@ -28,63 +25,18 @@ jobs:
           else
             npm install
           fi
-
       - name: Install Playwright Browsers & System Deps
         run: npx playwright install --with-deps chromium
-
-      - name: Install Xvfb & FFmpeg
+      - name: Run Playwright tests
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb ffmpeg
-
-      - name: Start Xvfb
-        env:
-          DISPLAY: ":99"
-        run: |
-          Xvfb :99 -screen 0 1920x1080x24 -ac >/dev/null 2>&1 &
-          sleep 2
-
-      - name: Start screen recording (playable MP4)
-        env:
-          DISPLAY: ":99"
-        run: |
-          mkdir -p recordings
-          ffmpeg -y \
-            -f x11grab -framerate 30 -video_size 1920x1080 -i ${DISPLAY} \
-            -c:v libx264 -pix_fmt yuv420p -preset veryfast -crf 23 \
-            -movflags +faststart \
-            recordings/test-run.mp4 >/dev/null 2>&1 &
-          echo $! > ffmpeg.pid
-
-      - name: Run Playwright tests (headed on Xvfb :99)
-        env:
-          DISPLAY: ":99"
-        run: |
-          npx playwright test src/tests/scorecard/ --headed
-
-      - name: Stop screen recording
-        if: always()
-        run: |
-          if [ -f ffmpeg.pid ]; then
-            kill -INT "$(cat ffmpeg.pid)" || true
-            sleep 2
-          fi
-          ls -lh recordings || true
-
-          if [ -s recordings/test-run.mp4 ]; then
-            ffmpeg -y -i recordings/test-run.mp4 -c copy -movflags +faststart recordings/test-run_faststart.mp4 >/dev/null 2>&1 || true
-            if [ -s recordings/test-run_faststart.mp4 ]; then
-              mv -f recordings/test-run_faststart.mp4 recordings/test-run.mp4
-            fi
-          fi
-
-      - name: Upload Artifacts (Video + Reports)
+          npx playwright test src/tests/application/
+      - name: Upload Artifacts (Reports)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: run-artifacts
           path: |
-            recordings/test-run.mp4
             playwright-report/
             test-results/
           if-no-files-found: warn
+ 
