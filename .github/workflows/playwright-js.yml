@@ -1,3 +1,9 @@
+ 
+on:
+  push:
+    branches: [ "main", "feature/**", "feature-*" ]
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
     inputs:
       language:
@@ -16,3 +22,37 @@
         description: 'Custom test command'
         required: false
         type: string
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Ensure package.json exists & Install Dependencies
+        run: |
+          if [ ! -f package.json ]; then
+            echo "package.json missing! Generating a default one for the agent's commit..."
+            npm init -y
+            npm install @playwright/test
+          else
+            npm install
+          fi
+      - name: Install Playwright Browsers & System Deps
+        run: npx playwright install --with-deps chromium
+      - name: Run Playwright tests
+        run: |
+          npx playwright test src/tests/application/
+      - name: Upload Artifacts (Reports)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-artifacts
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: warn
