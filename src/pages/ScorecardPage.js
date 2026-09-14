@@ -26,17 +26,15 @@ class ScorecardPage {
   // Tile Root Elements
   async getScorecardTile() {
     const comparisonSection = await this.getComparisonSection();
-    return comparisonSection.locator('*')
-      .filter({ hasText: /1 Point For Every \$1 Spent\.\s*300 Points = \$10 Reward\./i })
+    return comparisonSection.locator('.tile-body-copy')
+      .filter({ hasText: /1 Point For Every \$1 Spent/i })
       .first();
   }
 
   async getScorecardPlusTile() {
     const comparisonSection = await this.getComparisonSection();
-    return comparisonSection.locator('*')
+    return comparisonSection.locator('.tile-body-copy')
       .filter({ has: this.page.getByAltText('ScoreCard Plus New Logo') })
-      .filter({ hasText: /\$99 Annual Membership\./i })
-      .filter({ hasText: /\$350 in Benefits!?/i })
       .first();
   }
 
