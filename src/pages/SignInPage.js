@@ -26,8 +26,12 @@ class SignInPage {
   async clearSession() {
     await this.page.context().clearCookies();
     await this.page.evaluate(() => {
-      localStorage.clear();
-      sessionStorage.clear();
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        // Ignore SecurityError when localStorage access is denied
+      }
     });
     return true;
   }
