@@ -1,4 +1,4 @@
-const { test, expect } = require('../../fixtures');
+const { test, expect } = require('@playwright/test');
 const DSGScorecardPage = require('../../pages/DSGScorecardPage');
 
 test.describe('[QE-1][AC8] Verify Scorecard tile displays all required content elements including logo, points earning rate, and reward redemption formula', { tag: ['@regression', '@scorecard'] }, () => {
