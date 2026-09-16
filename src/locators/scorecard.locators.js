@@ -1,5 +1,12 @@
 const locators = {
-  comparisonSection: (page) => page.getByRole('region').filter({ hasText: /Score the Right Membership for You/i }),
+  comparisonSection: (page) => page.locator('my-account-templates-page-header')
+    .filter({ has: page.getByRole('heading', { name: /Score the Right Membership for You/i, level: 2 }) })
+    .first()
+    .or(
+      page.locator('main')
+        .filter({ has: page.getByRole('heading', { name: /Score the Right Membership for You/i, level: 2 }) })
+        .first()
+    ),
   
   sectionHeading: (page) => page.getByRole('heading', { name: /Score the Right Membership for You/i, level: 2 }),
   
