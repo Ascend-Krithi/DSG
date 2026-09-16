@@ -12,12 +12,12 @@ const locators = {
   
   scorecardTile: (page) => locators.comparisonSection(page)
     .locator('.tile-body-copy')
-    .filter({ hasText: /1 Point.*Every.*\$1 Spent/i })
+    .filter({ hasText: /1 Point For Every \$1 Spent/i })
     .first(),
   
   scorecardPlusTile: (page) => locators.comparisonSection(page)
     .locator('.tile-body-copy')
-    .filter({ has: page.getByAltText(/ScoreCard Plus.*Logo/i) })
+    .filter({ has: page.getByAltText('ScoreCard Plus New Logo') })
     .first(),
   
   scorecardGuestCta: (page) => locators.scorecardTile(page)
@@ -41,19 +41,19 @@ const locators = {
     .getByAltText(/ScoreCard Logo/i),
   
   scorecardPlusLogo: (page) => locators.scorecardPlusTile(page)
-    .getByAltText(/ScoreCard Plus.*Logo/i),
+    .getByAltText('ScoreCard Plus New Logo'),
   
   pricingText: (page) => locators.scorecardPlusTile(page)
-    .getByText(/\$99 Annual Membership/i),
+    .getByText(/\$99 annual membership/i),
   
   benefitsText: (page) => locators.scorecardPlusTile(page)
-    .getByText(/That's \$350 in Benefits/i),
+    .getByText(/That's \$350 in benefits/i),
   
   pointsEarningText: (page) => locators.scorecardTile(page)
-    .getByText(/1 Point.*Every.*\$1 Spent/i),
+    .getByText(/1 Point For Every \$1 Spent/i),
   
   rewardRedemptionText: (page) => locators.scorecardTile(page)
-    .getByText(/300 Points.*\$10 Reward/i)
+    .getByText(/300 Points = \$10 Reward/i)
 };
 
 module.exports = locators;
