@@ -1,61 +1,164 @@
- 
+name: Playwright Scorecard Tests
+
 on:
   push:
-    branches: [ "main", "feature/**", "feature-*" ]
+    branches:
+      - main
+      - "feature/**"
+      - "feature-*"
+
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
+
   workflow_dispatch:
     inputs:
       language:
-        description: 'Language'
+        description: "Language"
         required: false
         type: string
+
       gate:
-        description: 'Gate (compile or test)'
+        description: "Gate (compile or test)"
         required: false
         type: string
+
       buildcommand:
-        description: 'Custom build command'
+        description: "Custom build command"
         required: false
         type: string
+
       testcommand:
-        description: 'Custom test command'
+        description: "Custom test command"
         required: false
         type: string
+
+
 jobs:
   build-and-test:
+
     runs-on: ubuntu-latest
+
     timeout-minutes: 45
+
     steps:
+
+      # --------------------------------------------------
+      # Checkout repository
+      # --------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v4
+
+
+      # --------------------------------------------------
+      # Setup Node.js
+      # --------------------------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - name: Ensure package.json exists & Install Dependencies
+          node-version: "24"
+          cache: "npm"
+
+
+      # --------------------------------------------------
+      # Install dependencies
+      # --------------------------------------------------
+      - name: Install Dependencies
         run: |
           if [ ! -f package.json ]; then
-            echo "package.json missing! Generating a default one for the agent's commit..."
+            echo "package.json missing!"
+            echo "Creating default package.json..."
+
             npm init -y
             npm install @playwright/test
           else
             npm ci
           fi
-      - name: Install Playwright Browsers & System Deps
-        run: npx playwright install --with-deps chromium
-      - name: Run Playwright tests
+
+
+      # --------------------------------------------------
+      # Install Playwright browsers
+      # --------------------------------------------------
+      - name: Install Playwright Browsers
         run: |
-          npx playwright test src/tests/scorecard/ --config=playwright.config.js
+          npx playwright install --with-deps chromium
+
+
+      # --------------------------------------------------
+      # Display environment information
+      # --------------------------------------------------
+      - name: Environment Information
+        run: |
+          echo "======================================"
+          echo "Environment Information"
+          echo "======================================"
+
+          echo "Node version:"
+          node --version
+
+          echo "NPM version:"
+          npm --version
+
+          echo "Playwright version:"
+          npx playwright --version
+
+          echo "======================================"
+          echo "Test User Configuration"
+          echo "======================================"
+
+          if [ -n "$TEST_USER_EMAIL" ]; then
+            echo "TEST_USER_EMAIL is configured"
+          else
+            echo "WARNING: TEST_USER_EMAIL is NOT configured"
+          fi
+
+          if [ -n "$TEST_USER_PASSWORD" ]; then
+            echo "TEST_USER_PASSWORD is configured"
+          else
+            echo "WARNING: TEST_USER_PASSWORD is NOT configured"
+          fi
         env:
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-      - name: Upload Artifacts (Reports)
+
+
+      # --------------------------------------------------
+      # Run Scorecard Playwright tests
+      # --------------------------------------------------
+      - name: Run Playwright Scorecard Tests
+        run: |
+          echo "======================================"
+          echo "Running Scorecard Playwright Tests"
+          echo "======================================"
+
+          npx playwright test src/tests/scorecard/ \
+            --config=playwright.config.js
+
+        env:
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          CI: true
+
+
+      # --------------------------------------------------
+      # Upload HTML Playwright report
+      # --------------------------------------------------
+      - name: Upload Playwright HTML Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: run-artifacts
-          path: |
-            playwright-report/
-            test-results/
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: warn
+
+
+      # --------------------------------------------------
+      # Upload screenshots, videos and traces
+      # --------------------------------------------------
+      - name: Upload Playwright Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: test-results/
           if-no-files-found: warn
