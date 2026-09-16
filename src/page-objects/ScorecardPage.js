@@ -95,6 +95,12 @@ class ScorecardPage {
   }
 
   async signInUser(email, password) {
+    email = process.env.TEST_USER_EMAIL || email;
+    password = process.env.TEST_USER_PASSWORD || password;
+    if (!email || !password) {
+      throw new Error('TEST_USER_EMAIL and TEST_USER_PASSWORD must be configured for authenticated tests.');
+    }
+
     const currentUrl = this.page.url();
     if (!currentUrl.includes('sign-in') && !currentUrl.includes('login')) {
       const signInLink = loc.signInLink(this.page);

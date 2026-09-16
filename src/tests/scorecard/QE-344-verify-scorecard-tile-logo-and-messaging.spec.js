@@ -1,7 +1,6 @@
-const { test, expect } = require('../../fixtures');
+const { test, expect } = require('@playwright/test');
 const ScorecardPage = require('../../page-objects/ScorecardPage');
 const loc = require('../../locators/scorecard.locators');
-const TD = require('../../data/workday-test-data');
 
 test.describe('[QE-344][AC8] Verify Scorecard tile displays Scorecard Logo and points earning messaging', {
   tag: ['@functional', '@smoke', '@scorecard']

@@ -1,7 +1,6 @@
-const { test, expect } = require('../../fixtures');
+const { test, expect } = require('@playwright/test');
 const ScorecardPage = require('../../page-objects/ScorecardPage');
 const loc = require('../../locators/scorecard.locators');
-const TD = require('../../data/workday-test-data');
 
 test.describe('[QE-351][AC10] Verify error handling when AEM content source is unavailable or fails to load', {
   tag: ['@negative', '@regression', '@scorecard', '@aem']

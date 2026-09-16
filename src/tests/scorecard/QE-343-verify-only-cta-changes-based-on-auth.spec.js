@@ -1,7 +1,6 @@
-const { test, expect } = require('../../fixtures');
+const { test, expect } = require('@playwright/test');
 const ScorecardPage = require('../../page-objects/ScorecardPage');
 const loc = require('../../locators/scorecard.locators');
-const TD = require('../../data/workday-test-data');
 
 test.describe('[QE-343][AC7] Verify only CTA changes based on authentication status while other content remains static', {
   tag: ['@functional', '@regression', '@scorecard']

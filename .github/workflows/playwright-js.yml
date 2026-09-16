@@ -40,13 +40,16 @@ jobs:
             npm init -y
             npm install @playwright/test
           else
-            npm install
+            npm ci
           fi
       - name: Install Playwright Browsers & System Deps
         run: npx playwright install --with-deps chromium
       - name: Run Playwright tests
         run: |
-          npx playwright test src/tests/scorecard/
+          npx playwright test src/tests/scorecard/ --config=playwright.config.js
+        env:
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
       - name: Upload Artifacts (Reports)
         if: always()
         uses: actions/upload-artifact@v4

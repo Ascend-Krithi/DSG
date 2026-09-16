@@ -1,7 +1,6 @@
-const { test, expect } = require('../../fixtures');
+const { test, expect } = require('@playwright/test');
 const ScorecardPage = require('../../page-objects/ScorecardPage');
 const loc = require('../../locators/scorecard.locators');
-const TD = require('../../data/workday-test-data');
 
 test.describe('[QE-349][AC10] Verify benefits value is retrieved from AEM and displayed as rendered on marketing page', {
   tag: ['@functional', '@regression', '@scorecard', '@aem']
