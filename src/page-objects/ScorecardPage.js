@@ -10,8 +10,12 @@ class ScorecardPage {
     await this.page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
   }
 
+  async isUnavailablePageVisible() {
+    return await loc.unavailablePage(this.page).isVisible().catch(() => false);
+  }
+
   async waitForComparisonSection() {
-    await this.page.waitForSelector(loc.comparisonSection(this.page), { state: 'visible', timeout: 30000 });
+    await loc.comparisonSection(this.page).waitFor({ state: 'visible', timeout: 30000 });
     return true;
   }
 
@@ -43,6 +47,14 @@ class ScorecardPage {
     return await loc.scorecardRewards(this.page).textContent();
   }
 
+  async isComparisonSectionVisible() {
+    return await loc.comparisonSection(this.page).isVisible().catch(() => false);
+  }
+
+  async isSectionHeadingVisible() {
+    return await loc.sectionHeading(this.page).isVisible().catch(() => false);
+  }
+
   async getScorecardPlusLogoAlt() {
     await loc.scorecardPlusLogoSummary(this.page).waitFor({ state: 'visible', timeout: 30000 });
     return await loc.scorecardPlusLogoSummary(this.page).getAttribute('alt');
@@ -56,6 +68,12 @@ class ScorecardPage {
   async getScorecardPlusBenefitsText() {
     await loc.scorecardPlusBenefits(this.page).waitFor({ state: 'visible', timeout: 30000 });
     return await loc.scorecardPlusBenefits(this.page).textContent();
+  }
+
+  async isScorecardPlusContentVisible() {
+    const priceVisible = await loc.scorecardPlusPrice(this.page).isVisible().catch(() => false);
+    const benefitsVisible = await loc.scorecardPlusBenefits(this.page).isVisible().catch(() => false);
+    return priceVisible && benefitsVisible;
   }
 
   async isGuestCtaVisible() {
@@ -77,30 +95,27 @@ class ScorecardPage {
   }
 
   async signInUser(email, password) {
-    // Navigate to sign-in page if not already there
     const currentUrl = this.page.url();
     if (!currentUrl.includes('sign-in') && !currentUrl.includes('login')) {
-      // Click sign-in link if available
-      const signInLink = this.page.locator('a[href*="sign-in"], a[href*="login"]').first();
+      const signInLink = loc.signInLink(this.page);
       if (await signInLink.isVisible().catch(() => false)) {
         await signInLink.click();
         await this.page.waitForLoadState('domcontentloaded', { timeout: 30000 });
       }
     }
 
-    // Fill in credentials
-    const emailInput = this.page.locator('input[type="email"], input[name*="email"], input[id*="email"]').first();
-    const passwordInput = this.page.locator('input[type="password"], input[name*="password"], input[id*="password"]').first();
-    const submitButton = this.page.locator('button[type="submit"], button:has-text("Sign In"), button:has-text("Log In")').first();
+    await loc.signInEmailInput(this.page).fill(email);
+    await loc.signInPasswordInput(this.page).fill(password);
+    await loc.signInSubmitButton(this.page).click();
+    await this.page.waitForLoadState('domcontentloaded', { timeout: 30000 });
+  }
 
-    if (await emailInput.isVisible().catch(() => false)) {
-      await emailInput.fill(email);
-      await passwordInput.fill(password);
-      await submitButton.click();
-      await this.page.waitForLoadState('domcontentloaded', { timeout: 30000 });
-    }
+  async isSignInPageVisible() {
+    return await loc.signInPageCheck(this.page).isVisible().catch(() => false);
+  }
 
-    return true;
+  async isAccountSummaryVisible() {
+    return await loc.accountSummaryCheck(this.page).isVisible().catch(() => false);
   }
 
   async captureStaticContent() {

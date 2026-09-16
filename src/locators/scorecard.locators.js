@@ -2,31 +2,21 @@ const locators = {
   comparisonSection: (page) =>
     page.locator('my-account-templates-page-header')
       .filter({ has: page.getByRole('heading', { name: /score the right membership for you/i, level: 2 }) })
-      .first()
-      .or(
-        page.locator('main')
-          .filter({ has: page.getByRole('heading', { name: /score the right membership for you/i, level: 2 }) })
-          .first()
-      ),
+      .first(),
 
   sectionHeading: (page) =>
     locators.comparisonSection(page)
-      .getByRole('heading', { name: /score the right membership for you/i, level: 2 }),
+      .getByRole('heading', { name: /score the right membership for you/i, level: 2 })
+      .first(),
 
   scorecardTile: (page) =>
     locators.comparisonSection(page)
-      .locator('div, section, article, li')
-      .filter({ has: page.getByAltText('ScoreCard Logo Light None') })
-      .filter({ hasText: /1 Point For Every \$1 Spent\.?/i })
-      .filter({ hasText: /300 Points = \$10 Reward\.?/i })
+      .locator('.header-tile--scorecard')
       .first(),
 
   scorecardPlusTile: (page) =>
     locators.comparisonSection(page)
-      .locator('div, section, article, li')
-      .filter({ has: page.getByAltText(/ScoreCard Plus New Logo/i) })
-      .filter({ hasText: /\$99 annual membership\.?/i })
-      .filter({ hasText: /that'?s \$350 in benefits!?/i })
+      .locator('.header-tile--scorecard-plus')
       .first(),
 
   scorecardLogoSummary: (page) =>
@@ -35,13 +25,13 @@ const locators = {
       .first(),
 
   scorecardPoints: (page) =>
-    locators.comparisonSection(page)
-      .getByText(/1 Point For Every \$1 Spent\.?/i)
+    locators.scorecardTile(page)
+      .getByText(/1 Point For Every \$1 Spent\./i)
       .first(),
 
   scorecardRewards: (page) =>
-    locators.comparisonSection(page)
-      .getByText(/Earn \$10 in Rewards for every 300 Points|300 Points = \$10 Reward/i)
+    locators.scorecardTile(page)
+      .getByText(/300 Points = \$10 Reward\./i)
       .first(),
 
   scorecardShipping: (page) =>
@@ -60,12 +50,12 @@ const locators = {
       .first(),
 
   scorecardPlusPrice: (page) =>
-    locators.comparisonSection(page)
-      .getByText(/\$99 annual membership\.?/i)
+    locators.scorecardPlusTile(page)
+      .getByText(/\$99 annual membership\./i)
       .first(),
 
   scorecardPlusBenefits: (page) =>
-    locators.comparisonSection(page)
+    locators.scorecardPlusTile(page)
       .locator('p, div, span')
       .filter({ hasText: /that'?s \$350 in benefits!?/i })
       .first(),
@@ -73,7 +63,7 @@ const locators = {
   scorecardGuestCta: (page) =>
     locators.scorecardTile(page)
       .locator('button, a')
-      .filter({ hasText: /sign in\s*\/\s*join now|join now|join scorecard\+?\s*now/i })
+      .filter({ hasText: /sign in\s*\/\s*join now|join now|join scorecard\+\s*now/i })
       .first(),
 
   scorecardPlusGuestCta: (page) =>
@@ -92,7 +82,34 @@ const locators = {
     locators.scorecardPlusTile(page)
       .locator('button, a')
       .filter({ hasText: /view account/i })
-      .first()
+      .first(),
+
+  signInEmailInput: (page) =>
+    page.locator('input[type="email"], input[name*="email" i], input[id*="email" i]').first(),
+
+  signInPasswordInput: (page) =>
+    page.locator('input[type="password"], input[name*="password" i], input[id*="password" i]').first(),
+
+  signInSubmitButton: (page) =>
+    page.getByRole('button', { name: /sign in|log in/i })
+      .or(page.locator('button[type="submit"]'))
+      .first(),
+
+  signInLink: (page) =>
+    page.locator('a[href*="sign-in" i], a[href*="login" i]').first(),
+
+  signInPageCheck: (page) =>
+    page.getByRole('heading', { name: /sign in/i })
+      .or(page.locator('form').filter({ hasText: /sign in/i }))
+      .first(),
+
+  accountSummaryCheck: (page) =>
+    page.getByRole('heading', { name: /account summary|my account/i })
+      .or(page.locator('main').filter({ hasText: /account summary|my account/i }))
+      .first(),
+
+  unavailablePage: (page) =>
+    page.getByRole('heading', { name: /site is currently unavailable/i }).first()
 };
 
 module.exports = locators;

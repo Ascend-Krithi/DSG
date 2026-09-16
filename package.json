@@ -1,0 +1,23 @@
+{
+  "name": "dsg",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ascend-Krithi/DSG.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ascend-Krithi/DSG/issues"
+  },
+  "homepage": "https://github.com/Ascend-Krithi/DSG#readme",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

@@ -1,7 +1,6 @@
-const { test, expect } = require('../../fixtures');
+const { test, expect } = require('@playwright/test');
 const ScorecardPage = require('../../page-objects/ScorecardPage');
 const loc = require('../../locators/scorecard.locators');
-const TD = require('../../data/workday-test-data');
 
 test.describe('[QE-342][AC7] Verify static marketing content remains unchanged regardless of authentication state', {
   tag: ['@functional', '@regression', '@scorecard']

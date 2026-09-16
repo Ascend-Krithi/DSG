@@ -1,0 +1,288 @@
+DICK'S SPORTING GOODS SCORECARD - APPLICATION KNOWLEDGE BASE (UPDATED FOR AUTOMATION)
+
+Application Name: DICK'S Sporting Goods ScoreCard Loyalty Program
+Application Type: Web-based Retail Loyalty and Rewards Platform
+Primary Entry URL: https://www.dickssportinggoods.com/ScoreCard
+Parent Company: DICK'S Sporting Goods, Inc. (NYSE: DKS)
+Document Version: 2.0 (Automation-Ready Draft)
+Document Date: 2026-09-03
+Prepared For: Playwright test case and script generation
+Source Basis: Live site observations plus script execution evidence
+
+================================================================================
+
+1) EXECUTIVE SUMMARY
+
+This document is an updated, automation-focused KB for ScoreCard page testing.
+It preserves business behavior and adds:
+- Environment correctness guidance
+- Locator strategy guidance for stable automation
+- Reliability controls for intermittent automation-only site challenges
+- Acceptance criteria translation into verifiable test checks
+
+Key correction:
+- Use production URL for page validation and automated test navigation:
+  https://www.dickssportinggoods.com/ScoreCard
+
+Do not use:
+- https://dickssportinggoods.dksxchange.com/ScoreCard
+for baseline UI test validation unless a specific non-prod route is intended.
+
+================================================================================
+
+2) BUSINESS OVERVIEW
+
+2.1 Program Structure
+The ScoreCard program includes:
+- ScoreCard (free)
+- ScoreCard Gold (earned status)
+- ScoreCard+ (paid, annual)
+- DICK'S Credit Card benefits integration
+
+2.2 Core Value Proposition
+- Free tier rewards and shipping threshold
+- Paid tier expanded rewards and service benefits
+- Dynamic marketing and membership CTA behavior by authentication state
+
+================================================================================
+
+3) UI SURFACE UNDER TEST
+
+3.1 Comparison Section
+Primary section heading:
+- Score the Right Membership for You
+
+Expected desktop comparison content:
+- ScoreCard side
+- ScoreCard+ side
+
+Observed stable marketing texts (may include punctuation/superscript markers):
+- 1 Point For Every $1 Spent.
+- 300 Points = $10 Reward.
+- $99 Annual Membership.
+- That's $350 in Benefits!
+
+3.2 CTA Behavior by Authentication State
+- Guest:
+  - ScoreCard CTA: Sign In / Join Now
+  - ScoreCard+ CTA: Join Now or Join ScoreCard+ Now variant
+- Authenticated:
+  - ScoreCard CTA: View Account
+  - ScoreCard+ CTA: View Account
+
+Note:
+CTA labels can vary by page variant or campaign state. Tests should allow approved variants where business permits.
+
+================================================================================
+
+4) AUTOMATION RELIABILITY CONSTRAINTS
+
+4.1 Intermittent Automation Challenge Behavior
+The site can intermittently return an unavailable/challenge page to automated sessions while manual browsing still appears healthy.
+
+Evidence pattern:
+- Page displays:
+  We're sorry! The site is currently unavailable.
+
+4.2 Required Navigation Policy
+Recommended for script stability:
+- Use waitUntil: domcontentloaded
+- Avoid strict dependency on networkidle for this page
+- Warm up base domain before deep-link navigation
+- Retry navigation with short delay and cookie clear between retries
+- Detect unavailable page and fail with explicit diagnostic message
+
+4.3 Reporter and Output Stability
+On OneDrive-backed folders, test-results cleanup may produce EPERM lock issues.
+Use fresh output folders per run when needed.
+
+================================================================================
+
+5) LOCATOR STRATEGY (AUTOMATION CONTRACT)
+
+5.1 General Rules
+- Scope locators under the comparison section whenever possible
+- Prefer role-based and section-scoped locators first
+- Use text regex with punctuation tolerance where campaign punctuation may vary
+- Avoid broad global getByText checks that match multiple elements
+
+5.2 Recommended Locator Structure & Chaining (CRITICAL FOR AGENT)
+When generating locators, YOU MUST define them as functions that accept `page` and YOU MUST chain reusable locators to avoid repeating the parent DOM query.
+
+Do NOT repeat `page.locator('my-account-templates-page-header').filter(...)` for every element. Instead, call the parent locator function.
+
+Example of EXACT REQUIRED FORMAT for `locators.js`:
+
+```javascript
+const locators = {
+  // Parent Section
+  comparisonSection: (page) => page.locator("my-account-templates-page-header")
+    .filter({ has: page.getByRole("heading", { name: "Score the Right Membership for You", level: 2 }) })
+    .first(),
+
+  // Scoped Section Heading
+  sectionHeading: (page) => locators.comparisonSection(page)
+    .getByRole("heading", { name: "Score the Right Membership for You", level: 2 }),
+
+  // Tile Roots
+  scorecardTile: (page) => locators.comparisonSection(page).locator(".tile-body-copy")
+    .filter({ hasText: /1 Point For Every \$1 Spent/i }).first(),
+
+  scorecardPlusTile: (page) => locators.comparisonSection(page).locator(".tile-body-copy")
+    .filter({ has: page.getByAltText("ScoreCard Plus New Logo") }).first(),
+
+  // Inner Tile Elements (Chain from the tiles!)
+  scorecardGuestCta: (page) => locators.scorecardTile(page).getByRole("button", { name: /sign in\s*\/\s*join now/i })
+    .or(locators.scorecardTile(page).getByRole("link", { name: /sign in\s*\/\s*join now/i })),
+
+  scorecardPlusGuestCta: (page) => locators.scorecardPlusTile(page).getByRole("button", { name: /^join now$/i })
+    .or(locators.scorecardPlusTile(page).getByRole("link", { name: /^join now$/i }))
+    .or(locators.scorecardPlusTile(page).getByRole("button", { name: /join scorecard\+\s*now/i })),
+    
+  viewAccountScorecardTile: (page) => locators.scorecardTile(page).getByRole("button", { name: /view account/i })
+    .or(locators.scorecardTile(page).getByRole("link", { name: /view account/i })),
+    
+  viewAccountScorecardPlusTile: (page) => locators.scorecardPlusTile(page).getByRole("button", { name: /view account/i })
+    .or(locators.scorecardPlusTile(page).getByRole("link", { name: /view account/i }))
+};
+module.exports = locators;
+```
+
+5.3 Strict Mode Safety Rules & Positional Selectors
+- NEVER use `.first()` or `.last()` to distinguish between identical CTAs on the page. You MUST scope the CTA to its specific parent tile (e.g., `locators.scorecardTile(page).getByRole(...)`).
+- If a text locator can match multiple nodes, use:
+  - scoped parent locator
+  - class or role plus hasText
+  - .first() only after narrowing intent
+- Do not put assertions (`expect()`) inside the locators file or page objects. Assertions belong ONLY in specs.
+
+================================================================================
+
+6) ACCEPTANCE CRITERIA TO TEST-CHECK MAPPING
+
+AC1 Desktop Display
+- Desktop viewport: verify comparison section visible and both tier tiles present
+- Mobile viewport: verify section hidden or not rendered per product behavior definition
+
+AC2 Guest - ScoreCard CTA
+- Verify Sign In / Join Now CTA present in ScoreCard area
+- Click CTA and verify navigation to sign-in flow
+- After successful auth, verify return to ScoreCard page (URL and heading)
+
+AC3 Signed-In - ScoreCard CTA
+- Verify View Account CTA shown for ScoreCard
+- Verify click navigates to account summary surface
+
+AC4 ScoreCard+ Tile Content
+- Verify ScoreCard+ logos and fixed text content
+- Verify auth-dependent CTA variant
+
+AC5 Signed-In - ScoreCard+ CTA
+- Verify View Account CTA shown and clickable
+
+AC6 Guest After Sign Out
+- Verify guest CTA variant returns
+- Verify static marketing content unchanged
+
+AC7 Static Marketing Content
+- Validate logos/pricing/benefits text remains stable across auth states
+- Validate only CTA changes
+
+AC8 ScoreCard Tile Content
+- Verify logo + points + reward text in ScoreCard area
+
+AC9 Section Heading
+- Verify heading visible, readable, and above comparison content
+
+AC10 AEM Content Integration
+- UI-level evidence:
+  - benefits value renders with dynamic numeric pattern
+- Optional deeper validation:
+  - observe related content requests if endpoint contract is known
+- Do not claim hardcode-proof solely from static UI check
+
+================================================================================
+
+7) TEST DATA AND ENVIRONMENT REQUIREMENTS
+
+7.1 Required User States
+- Guest (not authenticated)
+- Authenticated standard member
+- Authenticated state suitable for View Account path
+
+7.2 Data Controls
+- Keep credential values in environment variables
+- Separate test accounts per scenario where possible
+- Ensure sign-out cleanup between auth-sensitive scenarios
+
+7.3 URL and Pattern Controls
+- ScoreCard URL pattern: /scorecard/i
+- Sign-in URL pattern: /sign-?in/i
+- Account summary pattern: /account.*summary/i
+
+================================================================================
+
+8) ASSERTION GUIDELINES
+
+8.1 Prefer Scoped Assertions
+Example:
+- Assert undefined/null absence on benefits element text, not entire HTML source.
+
+8.2 Allow Controlled Text Tolerance
+- Permit punctuation and superscript variations where business meaning is unchanged.
+
+8.3 CTA Assertions
+- Assert presence and clickability in tile context
+- Avoid global CTA assertions without section scoping
+
+8.4 Timeout Expectations (CRITICAL)
+- The Angular frontend takes time to hydrate. You MUST use a 20000ms timeout for all `toBeVisible()` assertions to avoid flaky 5000ms timeouts.
+- Example: `expect(locator).toBeVisible({ timeout: 20000 });`
+
+================================================================================
+
+9) KNOWN RISKS AND MITIGATIONS
+
+Risk: Intermittent unavailable/challenge response for automated runs
+Mitigation:
+- Retry strategy
+- Warmup navigation
+- Clear diagnostics and screenshots on failure
+
+Risk: Strict mode failures due to broad locators
+Mitigation:
+- Section-scoped locators
+- Narrow role/text/class combinations
+
+Risk: Campaign copy drift
+Mitigation:
+- Use business-approved regex tolerance
+- Separate hard requirements from promotional copy checks
+
+================================================================================
+
+10) READY-TO-USE CHECKLIST FOR SCRIPT GENERATION
+
+Before generating scripts:
+- Confirm production URL target
+- Confirm viewport matrix (desktop/mobile)
+- Confirm auth account availability
+- Confirm locator scoping strategy enabled
+- Confirm retry and unavailable-page handling in navigation helper
+- Confirm assertions avoid whole-page false positives
+
+================================================================================
+
+11) CHANGE LOG FROM PRIOR KB
+
+Updated:
+- Corrected primary URL to production
+- Added automation reliability constraints
+- Added strict locator contract and fallback rules
+- Added AC-to-verifiable-check mapping
+- Added known risks and mitigation guidance
+- Added test data governance and assertion rules
+
+================================================================================
+
+END OF UPDATED KB
