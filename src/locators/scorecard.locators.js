@@ -8,16 +8,22 @@ const locators = {
         .first()
     ),
   
-  sectionHeading: (page) => page.getByRole('heading', { name: /Score the Right Membership for You/i, level: 2 }),
+  sectionHeading: (page) => locators.comparisonSection(page)
+    .getByRole('heading', { name: /Score the Right Membership for You/i, level: 2 })
+    .first(),
   
   scorecardTile: (page) => locators.comparisonSection(page)
-    .locator('.tile-body-copy')
+    .locator('div, section, article, li')
+    .filter({ has: page.getByAltText('ScoreCard Logo Light None') })
     .filter({ hasText: /1 Point For Every \$1 Spent/i })
+    .filter({ hasText: /300 Points = \$10 Reward/i })
     .first(),
   
   scorecardPlusTile: (page) => locators.comparisonSection(page)
-    .locator('.tile-body-copy')
-    .filter({ has: page.getByAltText('ScoreCard Plus New Logo') })
+    .locator('div, section, article, li')
+    .filter({ has: page.getByAltText(/ScoreCard Plus New Logo/i) })
+    .filter({ hasText: /\$99 annual membership/i })
+    .filter({ hasText: /That's \$350 in benefits/i })
     .first(),
   
   scorecardGuestCta: (page) => locators.scorecardTile(page)
@@ -38,7 +44,7 @@ const locators = {
     .or(locators.scorecardPlusTile(page).getByRole('link', { name: /view account/i })),
   
   scorecardLogo: (page) => locators.scorecardTile(page)
-    .getByAltText(/ScoreCard Logo/i),
+    .getByAltText('ScoreCard Logo Light None'),
   
   scorecardPlusLogo: (page) => locators.scorecardPlusTile(page)
     .getByAltText('ScoreCard Plus New Logo'),
