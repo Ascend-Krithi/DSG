@@ -1,140 +1,115 @@
-const loc = require('../locators/scorecard.locators');
-const URL = 'https://www.dickssportinggoods.com/ScoreCard';
+const locators = require('../locators/scorecard.locators');
 
 class ScorecardPage {
   constructor(page) {
     this.page = page;
+    this.url = 'https://www.dickssportinggoods.com/ScoreCard';
   }
 
   async goto() {
-    await this.page.goto(URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await this.page.goto(this.url, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60000
+    });
   }
 
-  async isUnavailablePageVisible() {
-    return await loc.unavailablePage(this.page).isVisible().catch(() => false);
+  async getComparisonSection() {
+    return locators.comparisonSection(this.page);
   }
 
-  async waitForComparisonSection() {
-    await loc.comparisonSection(this.page).waitFor({ state: 'visible', timeout: 30000 });
-    return true;
+  async getSectionHeading() {
+    return locators.sectionHeading(this.page);
   }
 
-  async getSectionHeadingText() {
-    await loc.sectionHeading(this.page).waitFor({ state: 'visible', timeout: 30000 });
-    return await loc.sectionHeading(this.page).textContent();
+  async getScorecardTile() {
+    return locators.scorecardTile(this.page);
   }
 
-  async isScorecardTileVisible() {
-    return await loc.scorecardTile(this.page).isVisible().catch(() => false);
+  async getScorecardPlusTile() {
+    return locators.scorecardPlusTile(this.page);
   }
 
-  async isScorecardPlusTileVisible() {
-    return await loc.scorecardPlusTile(this.page).isVisible().catch(() => false);
+  async getScorecardGuestCta() {
+    return locators.scorecardGuestCta(this.page);
   }
 
-  async getScorecardLogoAlt() {
-    await loc.scorecardLogoSummary(this.page).waitFor({ state: 'visible', timeout: 30000 });
-    return await loc.scorecardLogoSummary(this.page).getAttribute('alt');
+  async getScorecardPlusGuestCta() {
+    return locators.scorecardPlusGuestCta(this.page);
   }
 
-  async getScorecardPointsText() {
-    await loc.scorecardPoints(this.page).waitFor({ state: 'visible', timeout: 30000 });
-    return await loc.scorecardPoints(this.page).textContent();
+  async getViewAccountScorecardTile() {
+    return locators.viewAccountScorecardTile(this.page);
   }
 
-  async getScorecardRewardsText() {
-    await loc.scorecardRewards(this.page).waitFor({ state: 'visible', timeout: 30000 });
-    return await loc.scorecardRewards(this.page).textContent();
+  async getViewAccountScorecardPlusTile() {
+    return locators.viewAccountScorecardPlusTile(this.page);
   }
 
-  async isComparisonSectionVisible() {
-    return await loc.comparisonSection(this.page).isVisible().catch(() => false);
+  async getScorecardLogo() {
+    return locators.scorecardLogo(this.page);
   }
 
-  async isSectionHeadingVisible() {
-    return await loc.sectionHeading(this.page).isVisible().catch(() => false);
+  async getScorecardPlusLogo() {
+    return locators.scorecardPlusLogo(this.page);
   }
 
-  async getScorecardPlusLogoAlt() {
-    await loc.scorecardPlusLogoSummary(this.page).waitFor({ state: 'visible', timeout: 30000 });
-    return await loc.scorecardPlusLogoSummary(this.page).getAttribute('alt');
+  async getPricingText() {
+    return locators.pricingText(this.page);
   }
 
-  async getScorecardPlusPriceText() {
-    await loc.scorecardPlusPrice(this.page).waitFor({ state: 'visible', timeout: 30000 });
-    return await loc.scorecardPlusPrice(this.page).textContent();
+  async getBenefitsText() {
+    return locators.benefitsText(this.page);
   }
 
-  async getScorecardPlusBenefitsText() {
-    await loc.scorecardPlusBenefits(this.page).waitFor({ state: 'visible', timeout: 30000 });
-    return await loc.scorecardPlusBenefits(this.page).textContent();
+  async getPointsEarningText() {
+    return locators.pointsEarningText(this.page);
   }
 
-  async isScorecardPlusContentVisible() {
-    const priceVisible = await loc.scorecardPlusPrice(this.page).isVisible().catch(() => false);
-    const benefitsVisible = await loc.scorecardPlusBenefits(this.page).isVisible().catch(() => false);
-    return priceVisible && benefitsVisible;
+  async getRewardRedemptionText() {
+    return locators.rewardRedemptionText(this.page);
   }
 
-  async isGuestCtaVisible() {
-    return await loc.scorecardGuestCta(this.page).isVisible().catch(() => false);
+  async clickScorecardGuestCta() {
+    const cta = await this.getScorecardGuestCta();
+    await cta.click();
   }
 
-  async isAuthenticatedCtaVisible() {
-    return await loc.viewAccountScorecardTile(this.page).isVisible().catch(() => false);
+  async clickScorecardPlusGuestCta() {
+    const cta = await this.getScorecardPlusGuestCta();
+    await cta.click();
   }
 
-  async clickGuestCta() {
-    await loc.scorecardGuestCta(this.page).waitFor({ state: 'visible', timeout: 30000 });
-    await loc.scorecardGuestCta(this.page).click();
+  async clickViewAccountScorecard() {
+    const cta = await this.getViewAccountScorecardTile();
+    await cta.click();
   }
 
-  async clickAuthenticatedCta() {
-    await loc.viewAccountScorecardTile(this.page).waitFor({ state: 'visible', timeout: 30000 });
-    await loc.viewAccountScorecardTile(this.page).click();
+  async clickViewAccountScorecardPlus() {
+    const cta = await this.getViewAccountScorecardPlusTile();
+    await cta.click();
   }
 
-  async signInUser(email, password) {
-    email = process.env.TEST_USER_EMAIL || email;
-    password = process.env.TEST_USER_PASSWORD || password;
-    if (!email || !password) {
-      throw new Error('TEST_USER_EMAIL and TEST_USER_PASSWORD must be configured for authenticated tests.');
+  async signIn() {
+    const username = process.env.TEST_USERNAME;
+    const password = process.env.TEST_PASSWORD;
+    
+    if (!username || !password) {
+      throw new Error('TEST_USERNAME and TEST_PASSWORD environment variables must be set');
     }
 
-    const currentUrl = this.page.url();
-    if (!currentUrl.includes('sign-in') && !currentUrl.includes('login')) {
-      const signInLink = loc.signInLink(this.page);
-      if (await signInLink.isVisible().catch(() => false)) {
-        await signInLink.click();
-        await this.page.waitForLoadState('domcontentloaded', { timeout: 30000 });
-      }
-    }
+    await this.page.goto('https://www.dickssportinggoods.com/signin', {
+      waitUntil: 'domcontentloaded'
+    });
 
-    await loc.signInEmailInput(this.page).fill(email);
-    await loc.signInPasswordInput(this.page).fill(password);
-    await loc.signInSubmitButton(this.page).click();
-    await this.page.waitForLoadState('domcontentloaded', { timeout: 30000 });
+    await this.page.fill('input[name="email"], input[type="email"]', username);
+    await this.page.fill('input[name="password"], input[type="password"]', password);
+    await this.page.click('button[type="submit"], button:has-text("Sign In")');
+    await this.page.waitForURL(/scorecard|account/i, { timeout: 30000 });
   }
 
-  async isSignInPageVisible() {
-    return await loc.signInPageCheck(this.page).isVisible().catch(() => false);
-  }
-
-  async isAccountSummaryVisible() {
-    return await loc.accountSummaryCheck(this.page).isVisible().catch(() => false);
-  }
-
-  async captureStaticContent() {
-    const content = {
-      scorecardLogo: await this.getScorecardLogoAlt(),
-      scorecardPoints: await this.getScorecardPointsText(),
-      scorecardRewards: await this.getScorecardRewardsText(),
-      scorecardPlusLogo: await this.getScorecardPlusLogoAlt(),
-      scorecardPlusPrice: await this.getScorecardPlusPriceText(),
-      scorecardPlusBenefits: await this.getScorecardPlusBenefitsText(),
-      sectionHeading: await this.getSectionHeadingText()
-    };
-    return content;
+  async signOut() {
+    await this.page.click('a[href*="signout"], button:has-text("Sign Out")');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 }
 
