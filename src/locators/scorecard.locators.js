@@ -1,115 +1,81 @@
 const locators = {
-  comparisonSection: (page) =>
-    page.locator('my-account-templates-page-header')
-      .filter({ has: page.getByRole('heading', { name: /score the right membership for you/i, level: 2 }) })
-      .first(),
+  comparisonSection: (page) => page.locator("my-account-templates-page-header")
+    .filter({ has: page.getByRole("heading", { name: /score the right membership for you/i, level: 2 }) })
+    .first()
+    .or(
+      page.locator("main")
+        .filter({ has: page.getByRole("heading", { name: /score the right membership for you/i, level: 2 }) })
+        .first()
+    ),
 
-  sectionHeading: (page) =>
-    locators.comparisonSection(page)
-      .getByRole('heading', { name: /score the right membership for you/i, level: 2 })
-      .first(),
+  comparisonHeading: (page) => page.getByRole("heading", { name: /score the right membership for you/i, level: 2 }),
 
-  scorecardTile: (page) =>
-    locators.comparisonSection(page)
-      .locator('.header-tile--scorecard')
-      .first(),
+  scorecardTile: (page) => locators.comparisonSection(page)
+    .locator("div, section, article, li")
+    .filter({ has: page.getByAltText("ScoreCard Logo Light None") })
+    .filter({ hasText: /1 Point For Every \$1 Spent\./i })
+    .filter({ hasText: /300 Points = \$10 Reward\./i })
+    .first(),
 
-  scorecardPlusTile: (page) =>
-    locators.comparisonSection(page)
-      .locator('.header-tile--scorecard-plus')
-      .first(),
+  scorecardPlusTile: (page) => locators.comparisonSection(page)
+    .locator("div, section, article, li")
+    .filter({ has: page.getByAltText(/ScoreCard Plus New Logo/i) })
+    .filter({ hasText: /\$99 annual membership\./i })
+    .first(),
 
-  scorecardLogoSummary: (page) =>
-    locators.comparisonSection(page)
-      .getByAltText(/ScoreCard Logo Light None/i)
-      .first(),
+  scorecardLogo: (page) => locators.comparisonSection(page)
+    .getByAltText("ScoreCard Logo Light None")
+    .first(),
 
-  scorecardPoints: (page) =>
-    locators.scorecardTile(page)
-      .getByText(/1 Point For Every \$1 Spent\./i)
-      .first(),
+  scorecardPoints: (page) => locators.comparisonSection(page)
+    .getByText(/1 Point For Every \$1 Spent\./i)
+    .first(),
 
-  scorecardRewards: (page) =>
-    locators.scorecardTile(page)
-      .getByText(/300 Points = \$10 Reward\./i)
-      .first(),
+  scorecardReward: (page) => locators.comparisonSection(page)
+    .getByText(/300 Points = \$10 Reward\./i)
+    .first(),
 
-  scorecardShipping: (page) =>
-    locators.comparisonSection(page)
-      .getByText(/Free Shipping on orders \$49\+/i)
-      .first(),
+  scorecardPlusLogoSummary: (page) => locators.comparisonSection(page)
+    .getByAltText(/ScoreCard Plus New Logo/i)
+    .first(),
 
-  scorecardPlusLogoSummary: (page) =>
-    locators.comparisonSection(page)
-      .getByAltText(/ScoreCard Plus New Logo/i)
-      .first(),
+  scorecardPlusLogoCard: (page) => locators.comparisonSection(page)
+    .getByAltText(/ScoreCard Logo \+ Light None/i)
+    .first(),
 
-  scorecardPlusLogoCard: (page) =>
-    locators.comparisonSection(page)
-      .getByAltText(/ScoreCard Logo \+ Light None/i)
-      .first(),
+  scorecardPlusPrice: (page) => locators.comparisonSection(page)
+    .getByText(/\$99 annual membership\./i)
+    .first(),
 
-  scorecardPlusPrice: (page) =>
-    locators.scorecardPlusTile(page)
-      .getByText(/\$99 annual membership\./i)
-      .first(),
+  scorecardPlusBenefits: (page) => locators.comparisonSection(page)
+    .locator("p, div, span")
+    .filter({ hasText: /that'?s \$350 in benefits!?/i })
+    .first(),
 
-  scorecardPlusBenefits: (page) =>
-    locators.scorecardPlusTile(page)
-      .locator('p, div, span')
-      .filter({ hasText: /that'?s \$350 in benefits!?/i })
-      .first(),
+  scorecardGuestCta: (page) => locators.scorecardTile(page)
+    .getByRole("button", { name: /sign in\s*\/\s*join now/i })
+    .or(locators.scorecardTile(page).getByRole("link", { name: /sign in\s*\/\s*join now/i })),
 
-  scorecardGuestCta: (page) =>
-    locators.scorecardTile(page)
-      .locator('button, a')
-      .filter({ hasText: /sign in\s*\/\s*join now|join now|join scorecard\+\s*now/i })
-      .first(),
+  scorecardPlusGuestCta: (page) => locators.scorecardPlusTile(page)
+    .getByRole("button", { name: /^join now$/i })
+    .or(locators.scorecardPlusTile(page).getByRole("link", { name: /^join now$/i }))
+    .or(locators.scorecardPlusTile(page).getByRole("button", { name: /join scorecard\+\s*now/i })),
 
-  scorecardPlusGuestCta: (page) =>
-    locators.scorecardPlusTile(page)
-      .locator('button, a')
-      .filter({ hasText: /join now|join scorecard\+\s*now|sign in\s*\/\s*join now/i })
-      .first(),
+  viewAccountScorecardTile: (page) => locators.scorecardTile(page)
+    .locator("button, a")
+    .filter({ hasText: /view account/i })
+    .first(),
 
-  viewAccountScorecardTile: (page) =>
-    locators.scorecardTile(page)
-      .locator('button, a')
-      .filter({ hasText: /view account/i })
-      .first(),
+  viewAccountScorecardPlusTile: (page) => locators.scorecardPlusTile(page)
+    .locator("button, a")
+    .filter({ hasText: /view account/i })
+    .first(),
 
-  viewAccountScorecardPlusTile: (page) =>
-    locators.scorecardPlusTile(page)
-      .locator('button, a')
-      .filter({ hasText: /view account/i })
-      .first(),
+  signInHeading: (page) => page.getByRole("heading", { name: /sign in/i })
+    .or(page.locator("form").filter({ hasText: /sign in/i })),
 
-  signInEmailInput: (page) =>
-    page.locator('input[type="email"], input[name*="email" i], input[id*="email" i]').first(),
-
-  signInPasswordInput: (page) =>
-    page.locator('input[type="password"], input[name*="password" i], input[id*="password" i]').first(),
-
-  signInSubmitButton: (page) =>
-    page.getByRole('button', { name: /sign in|log in/i })
-      .or(page.locator('button[type="submit"]'))
-      .first(),
-
-  signInLink: (page) =>
-    page.locator('a[href*="sign-in" i], a[href*="login" i]').first(),
-
-  signInPageCheck: (page) =>
-    page.getByRole('heading', { name: /sign in/i })
-      .or(page.locator('form').filter({ hasText: /sign in/i }))
-      .first(),
-
-  accountSummaryCheck: (page) =>
-    page.getByRole('heading', { name: /account summary|my account/i })
-      .or(page.locator('main').filter({ hasText: /account summary|my account/i }))
-      .first(),
-
-  unavailablePage: (page) =>
-    page.getByRole('heading', { name: /site is currently unavailable/i }).first()
+  accountSummaryHeading: (page) => page.getByRole("heading", { name: /account summary|my account/i })
+    .or(page.locator("main").filter({ hasText: /account summary|my account/i }))
 };
 
 module.exports = locators;
